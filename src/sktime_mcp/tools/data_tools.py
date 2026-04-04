@@ -120,20 +120,6 @@ def fit_predict_with_data_tool(
     )
 
 
-def list_data_handles_tool() -> Dict[str, Any]:
-    """
-    List all loaded data handles.
-    
-    Returns:
-        Dictionary with:
-        - success: bool
-        - count: int (number of loaded data handles)
-        - handles: list of data handle information
-    """
-    executor = get_executor()
-    return executor.list_data_handles()
-
-
 def release_data_handle_tool(data_handle: str) -> Dict[str, Any]:
     """
     Release a data handle and free memory.

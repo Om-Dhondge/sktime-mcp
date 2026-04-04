@@ -135,24 +135,52 @@ class TestTools:
         assert "estimators" in result
         assert len(result["estimators"]) <= 5
     
-    def test_list_datasets_tool(self):
-        """Test list_datasets tool."""
-        from sktime_mcp.tools.fit_predict import list_datasets_tool
-        
-        result = list_datasets_tool()
-        
-        assert result["success"]
-        assert "airline" in result["datasets"]
-    
     def test_describe_unknown_estimator(self):
         """Test describing an unknown estimator."""
         from sktime_mcp.tools.describe_estimator import describe_estimator_tool
-        
+
         result = describe_estimator_tool("NotARealEstimator12345")
-        
+
         assert not result["success"]
         assert "error" in result
 
+    def test_list_available_data_no_filter(self):
+        """list_available_data with no args returns both system_demos and active_handles."""
+        from sktime_mcp.tools.list_available_data import list_available_data_tool
+
+        result = list_available_data_tool()
+
+        assert result["success"]
+        assert "system_demos" in result
+        assert "active_handles" in result
+        assert "total" in result
+        assert isinstance(result["system_demos"], list)
+        assert isinstance(result["active_handles"], list)
+        assert result["total"] == len(result["system_demos"]) + len(result["active_handles"])
+        assert "airline" in result["system_demos"]
+
+    def test_list_available_data_demos_only(self):
+        """list_available_data with is_demo=True returns only system demo datasets."""
+        from sktime_mcp.tools.list_available_data import list_available_data_tool
+
+        result = list_available_data_tool(is_demo=True)
+
+        assert result["success"]
+        assert len(result["system_demos"]) > 0
+        assert result["active_handles"] == []
+        assert result["total"] == len(result["system_demos"])
+        assert "airline" in result["system_demos"]
+
+    def test_list_available_data_handles_only(self):
+        """list_available_data with is_demo=False returns only active data handles."""
+        from sktime_mcp.tools.list_available_data import list_available_data_tool
+
+        result = list_available_data_tool(is_demo=False)
+
+        assert result["success"]
+        assert result["system_demos"] == []
+        assert isinstance(result["active_handles"], list)
+        assert result["total"] == len(result["active_handles"])
     def test_save_model_tool(self, monkeypatch, tmp_path):
         """Test save_model tool resolves handle and forwards parameters."""
         from sktime_mcp.runtime.handles import get_handle_manager
